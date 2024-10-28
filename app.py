@@ -22,9 +22,8 @@ def capturar_dados():
         # Acessa a página de login do SUAP
         driver.get("https://suap.ifrn.edu.br/accounts/login/")
         
-        # Autentica no sistema (Substitua 'YOUR_USERNAME' e 'YOUR_PASSWORD' pelos seus dados)
-        username = '20211094010047'  # Coloque seu username aqui
-        password = 'Kettily123'  # Coloque sua senha aqui
+        username = 'username'  # Coloque seu username aqui
+        password = 'senha'  # Coloque sua senha aqui
 
         driver.find_element(By.ID, "id_username").send_keys(username)
         driver.find_element(By.ID, "id_password").send_keys(password, Keys.RETURN)
