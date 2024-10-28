@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <!-- Meta tags e título -->
+    <meta charset="UTF-8" />
+    <title>Verificador de Faltas e Notas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Tailwind CSS CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet" />
+
+    <!-- Fonte personalizada -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+      rel="stylesheet" />
+
+    <!-- Estilos personalizados -->
+    <style>
+      /* Estilos gerais */
+      body {
+        background-color: #f0f4f8;
+        color: #1a202c;
+        font-family: "Poppins", sans-serif;
+      }
+      .container {
+        max-width: 1200px;
+      }
+      /* Texto com gradiente */
+      .gradient-text {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      /* Cartões */
+      .card {
+        background-color: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 20px rgba(0, 0, 0, 0.15);
+      }
+      /* Barra de progresso */
+      .progress-bar {
+        height: 12px;
+        background-color: #e2e8f0;
+        border-radius: 9999px;
+        overflow: hidden;
+        margin-top: 1rem;
+      }
+      .progress {
+        height: 100%;
+        background: linear-gradient(90deg, #48bb78 0%, #38a169 100%);
+        width: 0%;
+        border-radius: 9999px;
+        transition: width 0.5s ease;
+      }
+      /* Ícones de status */
+      .status-icon {
+        font-size: 1.5rem;
+        margin-left: 0.5rem;
+      }
+      /* Tooltip */
+      .tooltip {
+        position: relative;
+        display: inline-block;
+      }
+      .tooltip .tooltip-text {
+        visibility: hidden;
+        width: 180px;
+        background-color: #2d3748;
+        color: #fff;
+        text-align: center;
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%; /* Posição acima */
+        left: 50%;
+        margin-left: -90px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+      }
+      .tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+      }
+      /* Spinner */
+      .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-top-color: #667eea;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: auto;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Container Principal -->
+    <div class="container mx-auto py-10 px-6">
+      <!-- Cabeçalho -->
+      <header class="text-center mb-12">
+        <h1 class="text-5xl font-extrabold gradient-text">
+          Verificador de Faltas e Notas
+        </h1>
+      </header>
+
+      <!-- Conteúdo -->
+      <div id="conteudo">
+        <!-- Grid de cartões -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- Cartão de Faltas -->
+          <div class="card">
+            <h2 class="text-2xl font-bold mb-4">Resumo de Faltas</h2>
+            <p id="faltas" class="text-lg mb-2">Carregando faltas...</p>
+            <p id="frequencia" class="text-lg mb-2"></p>
+            <p id="dias_restantes" class="text-lg mb-2"></p>
+            <p
+              id="mensagem"
+              class="text-lg font-semibold text-green-600 mb-4"></p>
+
+            <!-- Barra de Progresso -->
+            <div class="progress-bar">
+              <div id="faltas-progress" class="progress"></div>
+            </div>
+          </div>
+
+          <!-- Imagem ou Mensagem -->
+          <div class="card flex items-center justify-center">
+            <img
+              id="imagem"
+              src=""
+              alt="Imagem relacionada à frequência"
+              class="hidden mx-auto rounded-lg shadow-md" />
+          </div>
+        </div>
+
+        <!-- Seção de Notas -->
+        <div class="mt-12">
+          <h2 class="text-2xl font-bold mb-4">Notas das Disciplinas</h2>
+          <div
+            id="lista-notas"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cartões de Notas serão inseridos aqui -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Botão de Atualizar -->
+      <div class="text-center mt-8">
+        <button
+          id="atualizar"
+          class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-full hover:bg-indigo-700 focus:outline-none transition-transform duration-300 transform hover:scale-105">
+          Verificar Faltas Atualizadas
+        </button>
+      </div>
+
+      <!-- Mensagem de Erro -->
+      <div
+        id="erro"
+        class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mt-6 max-w-2xl mx-auto"
+        role="alert">
+        <strong class="font-bold">Erro:</strong>
+        <span id="erro_mensagem"></span>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+      // Função para exibir os dados
+      function exibirDados(data) {
+        const conteudo = document.getElementById("conteudo");
+        conteudo.classList.add("visible");
+
+        // Faltas e Frequência
+        document.getElementById(
+          "faltas"
+        ).textContent = `Total de Faltas: ${data.faltas}`;
+        document.getElementById(
+          "frequencia"
+        ).textContent = `Frequência: ${data.frequencia}%`;
+        document.getElementById(
+          "dias_restantes"
+        ).textContent = `Dias restantes que você pode faltar: ${data.dias_restantes}`;
+        document.getElementById("mensagem").textContent = data.mensagem;
+
+        // Barra de Progresso
+        const faltasPercent = (data.faltas / 300) * 100;
+        const faltasProgress = document.getElementById("faltas-progress");
+        faltasProgress.style.width = `${faltasPercent}%`;
+
+        // Imagem
+        const imgElement = document.getElementById("imagem");
+        if (data.imagem) {
+          imgElement.src = `/static/${data.imagem}`;
+          imgElement.classList.remove("hidden");
+        } else {
+          imgElement.classList.add("hidden");
+        }
+
+        // Notas
+        const listaNotas = document.getElementById("lista-notas");
+        listaNotas.innerHTML = ""; // Limpa os dados anteriores
+
+        data.notas.forEach((nota) => {
+          try {
+            const card = document.createElement("div");
+            card.classList.add("card");
+
+            // Corrigir valores nulos ou indefinidos para notas
+            const nota1 =
+              nota.nota1 !== null && nota.nota1 !== undefined
+                ? nota.nota1
+                : "-";
+            const nota2 =
+              nota.nota2 !== null && nota.nota2 !== undefined
+                ? nota.nota2
+                : "-";
+            const nota3 =
+              nota.nota3 !== null && nota.nota3 !== undefined
+                ? nota.nota3
+                : "-";
+            const nota4 =
+              nota.nota4 !== null && nota.nota4 !== undefined
+                ? nota.nota4
+                : "-";
+
+            // Ícone de status e tooltip
+            let statusIcon = "";
+            let tooltipText = "";
+            let statusColor = "";
+
+            if (nota.nota_necessaria === "Média já atingida.") {
+              statusIcon = "🎉";
+              tooltipText = "Parabéns! Você já foi aprovado nesta disciplina.";
+              statusColor = "text-green-500";
+            } else if (
+              nota.nota_necessaria === "Não é possível atingir a média."
+            ) {
+              statusIcon = "💀";
+              tooltipText =
+                "Infelizmente, não é possível atingir a média nesta disciplina.";
+              statusColor = "text-red-500";
+            } else if (
+              nota.nota_necessaria &&
+              nota.nota_necessaria.includes("Você precisa de uma média de")
+            ) {
+              // Verifica se a média necessária é numérica
+              const requiredAverageMatch =
+                nota.nota_necessaria.match(/[\d,.]+/);
+              if (requiredAverageMatch) {
+                const requiredAverage = parseFloat(
+                  requiredAverageMatch[0].replace(",", ".")
+                );
+                if (requiredAverage <= 50) {
+                  statusIcon = "😎";
+                  tooltipText = "Você está indo muito bem!";
+                  statusColor = "text-green-500";
+                } else if (requiredAverage <= 60) {
+                  statusIcon = "🙂";
+                  tooltipText = "Você está no caminho certo.";
+                  statusColor = "text-yellow-500";
+                } else if (requiredAverage <= 80) {
+                  statusIcon = "😬";
+                  tooltipText = "Atenção! Precisa se esforçar mais.";
+                  statusColor = "text-orange-500";
+                } else {
+                  statusIcon = "😱";
+                  tooltipText = "Cuidado! Precisa de notas altas para passar.";
+                  statusColor = "text-red-500";
+                }
+                nota.nota_necessaria = `Nota necessária média nos próximos bimestres: ${requiredAverage}`;
+              } else {
+                statusIcon = "ℹ️";
+                tooltipText = "Informação sobre a nota necessária.";
+                statusColor = "text-blue-500";
+              }
+            } else {
+              statusIcon = "ℹ️";
+              tooltipText = "Informação não disponível.";
+              statusColor = "text-gray-500";
+            }
+
+            card.innerHTML = `
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-bold ${statusColor}">${
+              nota.materia
+            }</h3>
+                            <div class="tooltip">
+                                <span class="status-icon">${statusIcon}</span>
+                                <span class="tooltip-text">${tooltipText}</span>
+                            </div>
+                        </div>
+                        <p class="text-lg mb-1"><strong>Nota 1:</strong> ${nota1}</p>
+                        <p class="text-lg mb-1"><strong>Nota 2:</strong> ${nota2}</p>
+                        <p class="text-lg mb-1"><strong>Nota 3:</strong> ${nota3}</p>
+                        <p class="text-lg mb-1"><strong>Nota 4:</strong> ${nota4}</p>
+                        ${
+                          nota.nota_necessaria &&
+                          !nota.nota_necessaria.includes("Média já atingida") &&
+                          !nota.nota_necessaria.includes(
+                            "Não é possível atingir a média"
+                          )
+                            ? `<p class="text-lg font-semibold ${statusColor} mt-2">${nota.nota_necessaria}</p>`
+                            : ""
+                        }
+                    `;
+            listaNotas.appendChild(card);
+          } catch (error) {
+            console.error(
+              `Erro ao processar a matéria ${nota.materia}:`,
+              error
+            );
+            // Continuar para a próxima matéria
+          }
+        });
+      }
+
+      // Carrega os dados ao iniciar a página
+      fetch("/dados")
+        .then((response) => response.json())
+        .then((data) => {
+          exibirDados(data);
+        });
+
+      // Atualiza os dados ao clicar no botão
+      document.getElementById("atualizar").addEventListener("click", () => {
+        // Exibe o spinner
+        const conteudo = document.getElementById("conteudo");
+        conteudo.innerHTML = '<div class="spinner"></div>';
+
+        fetch("/atualizar")
+          .then((response) => response.json())
+          .then((data) => {
+            exibirDados(data);
+          });
+      });
+    </script>
+  </body>
+</html>
